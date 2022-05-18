@@ -3,6 +3,7 @@ package com.luizaugusto.springsecuritytutorial.controllers;
 import com.luizaugusto.springsecuritytutorial.entitites.User;
 import com.luizaugusto.springsecuritytutorial.entitites.VerificationToken;
 import com.luizaugusto.springsecuritytutorial.event.RegistrationCompleteEvent;
+import com.luizaugusto.springsecuritytutorial.exceptions.UserNotFound;
 import com.luizaugusto.springsecuritytutorial.model.PasswordModel;
 import com.luizaugusto.springsecuritytutorial.model.UserModel;
 import com.luizaugusto.springsecuritytutorial.services.UserServiceImpl;
@@ -73,7 +74,10 @@ public class RegistrationController {
     @PostMapping("/resetPassword")
     public String resetPassword(@RequestBody PasswordModel passwordModel, HttpServletRequest request)
     {
-        var user = userServiceImpl.findUserByEmail(passwordModel.getEmail());
+        var user = new User();
+        try {
+            user = userServiceImpl.findUserByEmail(passwordModel.getEmail());
+        }catch (NullPointerException e) {throw new UserNotFound("There is no user with this e-mail");}
         var url = "";
         if(user != null)
         {
@@ -108,7 +112,11 @@ public class RegistrationController {
     @PostMapping("/changePassword")
     public String changePassword(@RequestBody PasswordModel passwordModel)
     {
-        var user = userServiceImpl.findUserByEmail(passwordModel.getEmail());
+        var user = new User();
+        try {
+            user = userServiceImpl.findUserByEmail(passwordModel.getEmail());
+        }catch(NullPointerException e){ throw new UserNotFound("There is no user with this e-mail"); }
+
         if(!userServiceImpl.checkIfValidOldPassword(user, passwordModel.getOldPassword())) return "Invalid Old password";
         userServiceImpl.changePassword(user, passwordModel.getNewPassword());
         return "Password changed successfully";
