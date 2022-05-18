@@ -1,30 +1,29 @@
 package com.luizaugusto.springsecuritytutorial.services;
 
 import com.luizaugusto.springsecuritytutorial.entitites.User;
+import com.luizaugusto.springsecuritytutorial.entitites.VerificationToken;
 import com.luizaugusto.springsecuritytutorial.model.UserModel;
-import com.luizaugusto.springsecuritytutorial.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
-public class UserService {
+import java.util.Optional;
 
-    private final UserRepository userRepository;
+public interface UserService {
+    User registerUser(UserModel userModel);
 
-    private final PasswordEncoder passwordEncoder;
+    void saveVerificationTokenForUser(User user, String token);
 
-    public User registerUser(UserModel userModel)
-    {
-        var user = new User();
-        user.setEmail(userModel.getEmail());
-        user.setFirstName(userModel.getFirstName());
-        user.setLastName(userModel.getLastName());
-        user.setPassword(passwordEncoder.encode(userModel.getPassword()));
-        user.setRole("USER");
+    String validateVerificationToken(String token);
 
-        userRepository.save(user);
-        return user;
-    }
+    VerificationToken generateNewVerificationToken(String oldToken);
+
+    User findUserByEmail(String email);
+
+    void createPasswordResetTokenForUser(User user, String token);
+
+    String validatePasswordResetToken(String token);
+
+    Optional<User> getUserByPasswordResetToken(String token);
+
+    void changePassword(User user, String newPassword);
+
+    boolean checkIfValidOldPassword(User user, String oldPassword);
 }

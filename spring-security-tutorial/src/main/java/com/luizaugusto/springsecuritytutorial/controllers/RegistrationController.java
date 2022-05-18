@@ -1,9 +1,13 @@
 package com.luizaugusto.springsecuritytutorial.controllers;
 
+import com.luizaugusto.springsecuritytutorial.event.RegistrationCompleteEvent;
 import com.luizaugusto.springsecuritytutorial.model.UserModel;
-import com.luizaugusto.springsecuritytutorial.services.UserService;
+import com.luizaugusto.springsecuritytutorial.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -11,13 +15,25 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("*")
 public class RegistrationController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
+
+    private final ApplicationEventPublisher publisher;
 
 
     @PostMapping("/register")
-    public String registerUser(@RequestBody UserModel userModel)
+    public String registerUser(@RequestBody UserModel userModel, final HttpServletRequest request)
     {
-        var user = userService.registerUser(userModel);
+        var user = userServiceImpl.registerUser(userModel);
+        publisher.publishEvent(new RegistrationCompleteEvent(user, applicationUrl(request)));
         return "success";
+    }
+
+    private String applicationUrl(HttpServletRequest request)
+    {
+        return "http://"+
+                request.getServerName()+
+                ":"+
+                request.getServerPort()+
+                request.getContextPath();
     }
 }
