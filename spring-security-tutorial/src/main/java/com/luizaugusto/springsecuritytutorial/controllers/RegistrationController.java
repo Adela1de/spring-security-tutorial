@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
-@CrossOrigin("*")
 public class RegistrationController {
 
     private final UserServiceImpl userServiceImpl;
@@ -35,5 +33,13 @@ public class RegistrationController {
                 ":"+
                 request.getServerPort()+
                 request.getContextPath();
+    }
+
+    @GetMapping("/verifyRegistration")
+    public String verifyRegistration(@RequestParam("token") String token)
+    {
+        String result = userServiceImpl.validateVerificationToken(token);
+        if(result.equalsIgnoreCase("valid")) return "User verified successfully!";
+        return "Bad User";
     }
 }

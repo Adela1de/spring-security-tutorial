@@ -5,10 +5,13 @@ import com.luizaugusto.springsecuritytutorial.services.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+
 @RequiredArgsConstructor
 @Slf4j
+@Component
 public class RegistrationCompleteEventListener implements
         ApplicationListener<RegistrationCompleteEvent>
 {
@@ -21,7 +24,7 @@ public class RegistrationCompleteEventListener implements
         var token = UUID.randomUUID().toString();
         userServiceImpl.saveVerificationTokenForUser(user, token);
 
-        String url = event.getApplicationUrl() + "verifyRegistration?token=" + token;
+        String url = event.getApplicationUrl() + "/verifyRegistration?token=" + token;
         log.info("Click the link to verify your account: {}", url);
     }
 }
